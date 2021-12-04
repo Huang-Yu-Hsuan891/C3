@@ -307,12 +307,13 @@ int main() {
     checkbit = (int *)malloc(checkbitlen * sizeof(int));
     ulen = krc;
     u = (int *)malloc(ulen * sizeof(int));
+    int er2=0;
     for (step = 0; step < 1; step++) {
         s = 0;
         num = 0;
         totalerror1 = 0;
         totalerror2 = 0;
-        while (s < /*100*/1) {
+        while (s < 100 || er2<2) {
             for (i = 0; i < codarraylen; i++) {
                 codarray[i] = 0;
             }
@@ -368,7 +369,7 @@ int main() {
                 }  
             }
             
-            for (k1 = 0; k1 < 1 && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
+            for (k1 = 0; k1 < 100 && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
                 restart = 0;  
                 //printf("yes");  
                 for (i = 0; i < 11; i++) {                          // bottom-up
@@ -398,7 +399,7 @@ int main() {
                                     valL = L1[i][m+1]-1;
                                     if (valL < 5553) {
                                         tempqij1[m] = qij1[comput[valL]][valL];
-                                        printf("yes");
+                                        //printf("yes");
                                     }
                                     else tempqij1[m] = qij2[comput[valL]][valL - 5553];
                                 }
@@ -408,7 +409,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij1[m]);
                             }
                             uij1[i][j] = tempuij;
-                            if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
+                            //if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
                         }
                     } else if (i >=(rc/2) && i < 4319) {
                         for (j = 0; j < 5; j++) {
@@ -493,7 +494,7 @@ int main() {
                             }
                             temp1uij1[2] = Lj[j];
                             qij1[i][j] = temp1uij1[0] + temp1uij1[1] + temp1uij1[2];
-                            if (j==0) printf("qij1[%d][%d] =%g",i,j,qij1[i][j]);
+                            //if (j==0) printf("qij1[%d][%d] =%g",i,j,qij1[i][j]);
                         }
                     } else {
                         for (i = 0; i < 6; i++) {
@@ -605,9 +606,24 @@ int main() {
             if ((error1+error2) != 0 && stp == 0) s++;
             restart = 0;
             if(error1 != 0) printf("error1 = %d\n", error1);
-            if(error2 != 0) printf("error2 = %d\n", error2);       
+            if(error2 != 0) {
+                printf("error2 = %d\n", error2);
+                er2 += 1;
+            }       
             totalerror1 += error1;
             totalerror2 += error2;
+            FILE *outfp2;
+            if(error2!=0) {    
+            outfp2 = fopen("error.txt","a");
+            for (i = 0; i < 1; i++) {
+                fprintf(outfp2,"%d ",error2);
+                //fprintf(outfp2,"%g ",berscompare[i]);
+                fprintf(outfp2,"%d ",er2);
+                fprintf(outfp2,"%d ",num);
+                fprintf(outfp2,"\n");
+            }
+            fclose(outfp2);
+            }
         }
         double ber1;
         double ber2;
@@ -637,6 +653,7 @@ int main() {
          fprintf(outfp2,"\n");
     }
     fclose(outfp2);
+
     free(codarray);
     free(codearray);
     free(outp);

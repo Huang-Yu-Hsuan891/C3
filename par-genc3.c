@@ -197,7 +197,6 @@ int main() {
             }
         }
     }
-    printf("123\n");
     for (i = 0; i < H2Crow; i++) {
         for (j = 0; j < H2Ccolumn; j++) {
             if (H2C[i][j] == 1) H[i][n1 + j] = H2C[i][j];
@@ -206,7 +205,6 @@ int main() {
     for (i = 0; i < H3Crow; i++) {
         for (j = 0; j < H3Ccolumn; j++) {
             if (H3C[i][j] == 1){
-                //H[i][j] = H3C[i][j];
                 H[rc1 + i][n1 + j] = H3C[i][j];
             }
         }

@@ -101,7 +101,7 @@ int main() {
     int stp;
     for (i = 0; i < 6; i++) bers1[i] = 0;  
     for (i = 0; i < 6; i++) bers2[i] = 0;   
-    ebn0s[0] = 2.4;
+    ebn0s[0] = 2;
     ebn0s[1] = 0.8;
     ebn0s[2] = 0.8;
     ebn0s[3] = 1.0;
@@ -324,7 +324,7 @@ int main() {
         num = 0;
         totalerror1 = 0;
         totalerror2 = 0;
-        while (s < 100/*300*/) {
+        while (s < 100) {
             for (i = 0; i < codarraylen; i++) {
                 codarray[i] = 0;
             }
@@ -381,7 +381,7 @@ int main() {
                 }  
             }
             
-            for (k1 = 0; k1 < 100/*100*/ && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
+            for (k1 = 0; k1 < 100/*100*/ && restart != 3085; k1++) {         // message passing, for predetermined threshold = 100
                 restart = 0;  
                 //printf("yes");  
                 for (i = 0; i < 11; i++) {                          // bottom-up
@@ -605,11 +605,11 @@ int main() {
                     }
                 }
 
-                for (i = 0; i < rc; i++) {
+                for (i = 0; i < 3085; i++) {
                     if (checkbit[i] == 0) restart += 1; // restart = 408 is success
                 }
                 stp = 0;
-                if (k1 == 99 && restart != rc) {
+                if (k1 == 99 && restart != 3085) {
                     stp = 1;
                     s++;
                 }
@@ -628,7 +628,8 @@ int main() {
                     error2 += 1;
                 }
             }
-            if ((error1+error2) != 0 && stp == 0) s++;
+            //if ((error1+error2) != 0 && stp == 0) s++;
+            if (error1!=0 && stp == 0) s++;
             restart = 0;
             if(error1 != 0) printf("error1 = %d\n", error1);
             if(error2 != 0) printf("error2 = %d\n", error2);       
@@ -654,7 +655,7 @@ int main() {
     }
     FILE *outfp2;
     
-    outfp2 = fopen("result8.txt","w");
+    outfp2 = fopen("retry2_0.txt","w");
     for (i = 0; i < 3; i++) {
         fprintf(outfp2,"errorblock = 500");
          fprintf(outfp2,"%g ",ebn0s[i]);
