@@ -101,7 +101,7 @@ int main() {
     int stp;
     for (i = 0; i < 6; i++) bers1[i] = 0;  
     for (i = 0; i < 6; i++) bers2[i] = 0;   
-    ebn0s[0] = 2;
+    ebn0s[0] = 2.4;
     ebn0s[1] = 0.8;
     ebn0s[2] = 0.8;
     ebn0s[3] = 1.0;
@@ -655,7 +655,7 @@ int main() {
     }
     FILE *outfp2;
     
-    outfp2 = fopen("retry2_0.txt","w");
+    outfp2 = fopen("level12_0.txt","w");
     for (i = 0; i < 3; i++) {
         fprintf(outfp2,"errorblock = 500");
          fprintf(outfp2,"%g ",ebn0s[i]);
