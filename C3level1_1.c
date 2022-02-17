@@ -9,7 +9,6 @@ double Ranq1();
 void normal(double sig, double *n1, double *n2);
 double CHK(double L1, double L2);
 double table[8] = {0.65, 0.55, 0.45, 0.35, 0.25, 0.15, 0.05, 0};
-
 int main() {
     int i, j, k1, m; 
     int n, rc;              // n is column 9872 and rc is row 4936
@@ -103,7 +102,7 @@ int main() {
     int stp;
     for (i = 0; i < 6; i++) bers1[i] = 0;  
     for (i = 0; i < 6; i++) bers2[i] = 0;   
-    ebn0s[0] = 2.2;
+    ebn0s[0] = 0.4;
     ebn0s[1] = 2.4;
     ebn0s[2] = 1.4;
     ebn0s[3] = 1.6;
@@ -296,14 +295,28 @@ int main() {
     checkbit = (int *)malloc(checkbitlen * sizeof(int));
     ulen = krc;
     u = (int *)malloc(ulen * sizeof(int));
-    int er2=0;
-    int s1;
+    
+    int skip;
+    int round = 0;
+    int noteq = 0;
+    int noteq_up = 0;
+    int all_not_equal = 0;
+    int all_not_equal_up = 0;
+    int error_times = 0;
+    int row_sum = 0;
+    long long all_times = 0;
+    int first_codeword = 1;
+    
+    
     for (step = 0; step < 1; step++) {
         s = 0;
         num = 0;
         totalerror1 = 0;
         totalerror2 = 0;
-        while (s < 100) {
+        while (s < 2) {
+            round = 0;
+            noteq = 0;
+            noteq_up = 0;
             for (i = 0; i < codarraylen; i++) {
                 codarray[i] = 0;
             }
@@ -342,10 +355,37 @@ int main() {
                 outp[2 * i] = codearray[2 * i] + x;
                 outp[2 * i + 1] = codearray[2 * i + 1] + y;
             }
+            for (i = 0; i < rc; i++) {
+                if (outp[i] >= 0) output[i] = 0;
+                else output[i] = 1;
+            }
+            for (i = 3085; i < rc; i++) {
+                row_sum = 0;
+                if (i < (rc/2)) {
+                    for (j = 0; j < 12; j++) {
+                        row_sum += output[L1[i][j] - 1];
+                    }
+                    row_sum = row_sum % 2;
+                } else if (i >= (rc/2) && i < 4319) {
+                    for (j = 0; j < 5; j++) {
+                        row_sum += output[L2[i-2468][j] - 1];
+                    }
+                    row_sum = row_sum % 2;
+                } else {
+                    for (j = 0; j < 6; j++) {
+                        row_sum += output[L3[i-4319][j] - 1];
+                    }
+                    row_sum = row_sum % 2;
+                }
+                if ((row_sum%2) == 1) {
+                    noteq = 1;
+                    row_sum = 0;
+                    break;
+                }
+            }
             ebn0 = pow(10, ebn0/10);
             for(i = 0; i < Ljlen; i++) {
                 Lj[i] =4 * 0.5 * ebn0 * outp[i];     //  0.5 * 1.2544 = Es/N0
-                //if(i==1167||i==1404||i==2184||i==3548||i==4148||i==4670||i==6103||i==6340||i==7120||i==8484||i==9084||i==9607)printf("Lj[%d]=%g\n",i,Lj[i]);
             }
             for (j = 0; j < qij1column; j++) {                               // initialization
                 for (i = 0; i < qij1row; i++) {
@@ -357,36 +397,12 @@ int main() {
                         qij2[i][j] = Lj[5553 + j];
                 }  
             }
-            //int s1 =0; // for level2
-            
-            s1 = 0;
-            restart2 = 0;
-            k1 = 0;
-            restart1 = 0;
-            printf("1 ");
-
-            /*while (restart2 != 1851 || k1 <100){
-                printf("2 ");
-                printf("k1 = %d ", k1);
-            if (s1 == 0) restart2 = 0;
-            else restart2 = 1851;*/
-            for (k1 = 0; k1 < 100 && restart1 != 2468 ; k1++) {         // message passing, for predetermined threshold = 100
-                restart = 0;
-                restart1 = 0;
-                restart2 = 0; 
-                printf("3 "); 
-                for (i = 0; i < 11; i++) {                          // bottom-up
-                    tempqij1[i] = 0.0;
-                }
-                for (i = 0; i < 4; i++) {                          // bottom-up
-                    tempqij2[i] = 0.0;
-                }
-                for (i = 0; i < 5; i++) {                          // bottom-up
-                    tempqij3[i] = 0.0;
-                }
-                for (i = 0; i < computlen; i++) {
-                    comput[i] = 0;
-                }
+            while (k1 < 100 && noteq != 0) {
+                noteq = 0;
+                for (i = 0; i < 11; i++) tempqij1[i] = 0.0;
+                for (i = 0; i < 4; i++) tempqij2[i] = 0.0;
+                for (i = 0; i < 5; i++) tempqij3[i] = 0.0;
+                for (i = 0; i < computlen; i++) comput[i] = 0;
                 for (i = 0; i < rc; i++) {
                     if (i < (rc/2)) {
                         for (j = 0; j < 12; j++) {
@@ -397,9 +413,7 @@ int main() {
                                     else tempqij1[m] = qij2[comput[valL]][valL - 5553];
                                 } else if (m >= j) {
                                     valL = L1[i][m+1]-1;
-                                    if (valL < 5553) {
-                                        tempqij1[m] = qij1[comput[valL]][valL];
-                                    }
+                                    if (valL < 5553) tempqij1[m] = qij1[comput[valL]][valL];
                                     else tempqij1[m] = qij2[comput[valL]][valL - 5553];
                                 }
                             }
@@ -464,16 +478,20 @@ int main() {
                         }
                     }
                 }
-
+                //for (i= 0; i < n; i++) printf("%d ", comput[i]);
                 // top-down
                 for(i = 0; i < 3; i++) {
                     temp1uij1[i] = 0.0;
                 }
+                //printf("2");
                 for(i = 0; i < 6; i++) {
                     temp1uij2[i] = 0.0;
                 }
+                //printf("2");
                 for (i = 0; i < comput1len; i++) comput1[i] = 0;
+                //printf("2");
                 for (j = 0; j < n; j++) {
+                	//printf("j = %d ", j);
                     if (j < 5553) {
                         for (i = 0; i < 3; i++) {
                             for (m = 0; m < 2; m++) {
@@ -510,7 +528,7 @@ int main() {
                                 }
                             }
                             temp1uij2[5] = Lj[j];
-                            qij2[i][j-5553] = temp1uij2[0] + temp1uij2[1] + temp1uij2[2] +temp1uij2[3] + temp1uij2[4] + temp1uij2[5];
+                            qij2[i][j-5553] = temp1uij2[0] + temp1uij2[1] + temp1uij2[2] +temp1uij2[3]+temp1uij2[4]+temp1uij2[5];
                         }
                     }
                     if (j < 5553) {
@@ -523,10 +541,11 @@ int main() {
                         }
                     }
                 }
-
+                //for (i = 0; i < rc; i++) printf("%d", comput1[i]);
                 // decision
                 for (i = 0; i < comput2len; i++) comput2[i] = 0;
                 for (j = 0; j < n; j++) {
+                	//printf("2 j = %d ", j);
                     qj[j] = Lj[j];
                     if (j < 5553) {
                         for (i = 0; i < 3; i++) {
@@ -546,6 +565,7 @@ int main() {
                             if (valL < (rc/2)) qj[j] += uij1[valL][comput2[valL]];
                             else if (valL >= (rc/2) && valL < 4319) qj[j] += uij2[valL-2468][comput2[valL]];
                             else qj[j] += uij3[valL-4319][comput2[valL]];
+                            //qj[j] += uij2[valL][comput2[valL]];
                         }
                         if (qj[j] >= 0) output[j] = 0;
                         else if (qj[j] < 0) output[j] = 1;
@@ -554,97 +574,39 @@ int main() {
                         }
                     }
                 }
-
-                // to check Hx=0     
-                for (i = 0; i < rc; i++) {
-                    checkbit[i] = 0;
+                for (i = 3085; i < rc; i++) {
+                    row_sum = 0;
                     if (i < (rc/2)) {
                         for (j = 0; j < 12; j++) {
-                            checkbit[i] += output[L1[i][j] - 1];
+                            row_sum += output[L1[i][j] - 1];
                         }
-                        checkbit[i] = checkbit[i] % 2;
+                        row_sum = row_sum % 2;
                     } else if (i >= (rc/2) && i < 4319) {
                         for (j = 0; j < 5; j++) {
-                            checkbit[i] += output[L2[i-2468][j] - 1];
+                            row_sum += output[L2[i-2468][j] - 1];
                         }
-                        checkbit[i] = checkbit[i] % 2;
+                        row_sum = row_sum % 2;
                     } else {
                         for (j = 0; j < 6; j++) {
-                            checkbit[i] += output[L3[i-4319][j] - 1];
+                            row_sum += output[L3[i-4319][j] - 1];
                         }
-                        checkbit[i] = checkbit[i] % 2;
+                        row_sum = row_sum % 2;
+                    }
+                    if ((row_sum%2) != 0) {
+                        //noteq = 1;
+                        //row_sum = 0;
+                        for 
+                        break;
                     }
                 }
-                for (i = 0; i < 2468; i++) {
-                    if (checkbit[i] == 0) restart1 += 1;
-                }
-                
-                for (i = 2468; i < rc && s1 == 0; i++) {
-                    if (checkbit[i] == 0) restart2 += 1;
-                }
-                if (restart2 == 2468) s1 = 1;
-                for (i = 0; i < rc; i++) {
-                    if (checkbit[i] == 0) restart += 1; // restart = 408 is success
-                }
-                /*stp = 0;
-                if (k1 == 99 && restart != rc) {
-                    stp = 1;
-                    s++;
-                }*/
             }
-            printf("restart1 = %d ", restart1);
-            printf("restart2 = %d ", restart2);
-            }
-            printf("s = %d; k[%d] = %d\n", s, num, k1);
-            error1 = 0;
-            error2 = 0;
-            for(i = 0; i < 5553; i++) {
-                if (output[i] != codarray[i]) {
-                    error1 += 1;
-                }
-            }
-            for(i = 5553; i < n; i++) {
-                if (output[i] != codarray[i]) {
-                    error2 += 1;
-                }
-            }
-            if ((error1+error2) != 0 /*&& stp == 0*/) s++;
-            restart = 0;
-            restart1 = 0;
-            if(error1 != 0) printf("error1 = %d\n", error1);
-            if(error2 != 0) {
-                printf("error2 = %d\n", error2);
-                er2 += 1;
-            }       
-            totalerror1 += error1;
-            totalerror2 += error2;
+            
         }
-        double ber1;
-        double ber2;
-        ber1 = (double)totalerror1 / (num * 5553);
-        ber2 = (double)totalerror2 / (num * 4319);
-        printf("totalerror1 = %d\n", totalerror1);
-        printf("totalerror2 = %d\n", totalerror2);
-        printf("BER1 = %g\n", ber1);
-        printf("BER2 = %g\n", ber2);
-        bers1[step] = ber1;
-        bers2[step] = ber2;
     }
-    for(step = 0; step < 1; step++) {
-        printf("enb0s[%d] = %g\n",step, ebn0s[step]);
-        printf("bers1[%d] = %g\n",step, bers1[step]);
-        printf("bers2[%d] = %g\n",step, bers2[step]);
-    }
-    FILE *outfp2; 
-    outfp2 = fopen("c3_2.txt","w");
-    for (i = 0; i < 1; i++) {
-         fprintf(outfp2,"%g ",ebn0s[i]);
-         fprintf(outfp2,"%g ",bers1[i]);
-         fprintf(outfp2,"%g ",bers2[i]);
-         fprintf(outfp2,"\n");
-    }
-    fclose(outfp2);
-
+    
+    
+    
+    
     free(codarray);
     free(codearray);
     free(outp);
@@ -681,7 +643,6 @@ int main() {
 
     return 0;
 }
-
 void normal(double sig, double *n1, double *n2)
 {   
     double x1,x2;
@@ -699,7 +660,8 @@ void normal(double sig, double *n1, double *n2)
     
 }
 
-double Ranq1() {
+double Ranq1() 
+{
     if ( RANI == 0 ){
         RANV = SEED ^ 4101842887655102017LL;
         RANV ^= RANV >> 21;
@@ -752,5 +714,5 @@ double CHK(double L1, double L2)
     else if (ope2 >= 2.252 && ope2 < 4.5) lndown = table[6];
     else if (ope2 >= 4.5) lndown = table[7];
 
-    return sgn1 * sgn2 * min +lnup-lndown /*answer*/;
+    return sgn1 * sgn2 * min +lnup-lndown;
 }

@@ -86,6 +86,7 @@ int main() {
     int error2;
     int totalerror1=0;
     int totalerror2=0;
+    int totalerror=0;
     int restart = 0;
     double sigma;
     double ebn0;
@@ -324,7 +325,8 @@ int main() {
         num = 0;
         totalerror1 = 0;
         totalerror2 = 0;
-        while (s < 100) {
+        totalerror = 0;
+        while (s < 5) {
             for (i = 0; i < codarraylen; i++) {
                 codarray[i] = 0;
             }
@@ -381,7 +383,7 @@ int main() {
                 }  
             }
             
-            for (k1 = 0; k1 < 100/*100*/ && restart != 3085; k1++) {         // message passing, for predetermined threshold = 100
+            for (k1 = 0; k1 < 100/*100*/ && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
                 restart = 0;  
                 //printf("yes");  
                 for (i = 0; i < 11; i++) {                          // bottom-up
@@ -418,6 +420,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij1[m]);
                             }
                             uij1[i][j] = tempuij;
+                            printf("%g; ",uij1[i][j]);
                         }
                     } else if (i >=(rc/2) && i < 4319) {
                         for (j = 0; j < 5; j++) {
@@ -438,6 +441,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij2[m]);
                             }
                             uij2[i-2468][j] = tempuij;
+                            printf("%g; ", uij1[i-2468][j]);
                         }
                     } else {
                         for (j = 0; j < 6; j++) {
@@ -605,11 +609,11 @@ int main() {
                     }
                 }
 
-                for (i = 0; i < 3085; i++) {
+                for (i = 0; i < rc; i++) {
                     if (checkbit[i] == 0) restart += 1; // restart = 408 is success
                 }
                 stp = 0;
-                if (k1 == 99 && restart != 3085) {
+                if (k1 == 99 && restart != rc) {
                     stp = 1;
                     s++;
                 }
@@ -629,21 +633,26 @@ int main() {
                 }
             }
             //if ((error1+error2) != 0 && stp == 0) s++;
-            if (error1!=0 && stp == 0) s++;
+            //if (error1!=0 && stp == 0) s++;
             restart = 0;
             if(error1 != 0) printf("error1 = %d\n", error1);
             if(error2 != 0) printf("error2 = %d\n", error2);       
             totalerror1 += error1;
             totalerror2 += error2;
+            totalerror = totalerror1+totalerror2;
         }
         double ber1;
         double ber2;
+        double bertot;
         ber1 = (double)totalerror1 / (num * 5553);
         ber2 = (double)totalerror2 / (num * 4319);
+        bertot=(double)totalerror / (num*n);
         printf("totalerror1 = %d\n", totalerror1);
         printf("totalerror2 = %d\n", totalerror2);
+        printf("totalerror = %d\n", totalerror);
         printf("BER1 = %g\n", ber1);
         printf("BER2 = %g\n", ber2);
+        printf("BER = %g\n", bertot);
         bers1[step] = ber1;
         bers2[step] = ber2;
     }

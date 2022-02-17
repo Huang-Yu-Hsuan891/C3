@@ -312,7 +312,7 @@ int main() {
         num = 0;
         totalerror1 = 0;
         totalerror2 = 0;
-        while (s < /*100*/1) {
+        while (s < /*100*/100) {
             for (i = 0; i < codarraylen; i++) {
                 codarray[i] = 0;
             }
@@ -368,7 +368,7 @@ int main() {
                 }  
             }
             
-            for (k1 = 0; k1 < 1 && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
+            for (k1 = 0; k1 < 100 && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
                 restart = 0;  
                 //printf("yes");  
                 for (i = 0; i < 11; i++) {                          // bottom-up
@@ -398,7 +398,7 @@ int main() {
                                     valL = L1[i][m+1]-1;
                                     if (valL < 5553) {
                                         tempqij1[m] = qij1[comput[valL]][valL];
-                                        printf("yes");
+                                        //printf("yes");
                                     }
                                     else tempqij1[m] = qij2[comput[valL]][valL - 5553];
                                 }
@@ -408,7 +408,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij1[m]);
                             }
                             uij1[i][j] = tempuij;
-                            if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
+                            //if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
                         }
                     } else if (i >=(rc/2) && i < 4319) {
                         for (j = 0; j < 5; j++) {
@@ -493,7 +493,7 @@ int main() {
                             }
                             temp1uij1[2] = Lj[j];
                             qij1[i][j] = temp1uij1[0] + temp1uij1[1] + temp1uij1[2];
-                            if (j==0) printf("qij1[%d][%d] =%g",i,j,qij1[i][j]);
+                            //if (j==0) printf("qij1[%d][%d] =%g",i,j,qij1[i][j]);
                         }
                     } else {
                         for (i = 0; i < 6; i++) {
@@ -592,12 +592,12 @@ int main() {
             /*if(k == 100) */printf("s = %d; k[%d] = %d\n", s, num, k1);
             error1 = 0;
             error2 = 0;
-            for(i = 0; i < 5553; i++) {
+            for(i = 0; i < 6170; i++) {
                 if (output[i] != codarray[i]) {
                     error1 += 1;
                 }
             }
-            for(i = 5553; i < n; i++) {
+            for(i = 6170; i < n; i++) {
                 if (output[i] != codarray[i]) {
                     error2 += 1;
                 }
@@ -611,8 +611,8 @@ int main() {
         }
         double ber1;
         double ber2;
-        ber1 = (double)totalerror1 / (num * 5553);
-        ber2 = (double)totalerror2 / (num * 4319);
+        ber1 = (double)totalerror1 / (num * 6170);
+        ber2 = (double)totalerror2 / (num * 3702);
         printf("totalerror1 = %d\n", totalerror1);
         printf("totalerror2 = %d\n", totalerror2);
         printf("BER1 = %g\n", ber1);

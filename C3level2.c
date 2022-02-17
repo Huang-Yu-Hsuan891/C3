@@ -101,7 +101,7 @@ int main() {
     int stp;
     for (i = 0; i < 6; i++) bers1[i] = 0;  
     for (i = 0; i < 6; i++) bers2[i] = 0;   
-    ebn0s[0] = 0.7;
+    ebn0s[0] = 1.2;
     ebn0s[1] = 2.4;
     ebn0s[2] = 1.4;
     ebn0s[3] = 1.6;
@@ -233,8 +233,6 @@ int main() {
     fclose(fpr);
     FILE *fpr1;
     fpr1=fopen("generator1.txt","r");
-    //fscanf(fpr1,"%d",&krc);
-    //fscanf(fpr1,"%d",&n);
     n = 9872;
     krc = 4936;
     printf("column = %d\n", n);
@@ -246,19 +244,10 @@ int main() {
     for (i = 0; i < Glenrow; i++) {
         for (j = 0; j < Glencolumn; j++) {
             fscanf(fpr1,"%d",&G[i][j]);
-            //if (G[i][j] == 1) printf("%d ", j);
-            //if (G[i][j] == 1 && j == i)printf("i = %d; j = %d",i,j);
         }
-        //printf("\n");
     }
     printf("yes");
-    // for CODE part
     fclose(fpr1);
-    /*for (i = 0; i < Glenrow; i++) {
-        for (j = 0; j < Glencolumn; j++) {
-        	if (G[i][j] == 1 && j == i)printf("i = %d; j = %d",i,j);  
-        }
-    }*/
     codarraylen = n;
     codarray = (int *)malloc(codarraylen * sizeof(int));
     
@@ -313,7 +302,7 @@ int main() {
         num = 0;
         totalerror1 = 0;
         totalerror2 = 0;
-        while (s < 100 || er2<50) {
+        while (s < 100 /*|| er2<50*/) {
             for (i = 0; i < codarraylen; i++) {
                 codarray[i] = 0;
             }
@@ -356,6 +345,8 @@ int main() {
             ebn0 = pow(10, ebn0/10);
             for(i = 0; i < Ljlen; i++) {
                 Lj[i] =4 * 0.5 * ebn0 * outp[i];     //  0.5 * 1.2544 = Es/N0
+                if (Lj[j] >= 0) output[j] = 0;
+                else output[j]=1;
                 //if(i==1167||i==1404||i==2184||i==3548||i==4148||i==4670||i==6103||i==6340||i==7120||i==8484||i==9084||i==9607)printf("Lj[%d]=%g\n",i,Lj[i]);
             }
             for (j = 0; j < qij1column; j++) {                               // initialization
@@ -368,25 +359,49 @@ int main() {
                         qij2[i][j] = Lj[5553 + j];
                 }  
             }
-            
-            for (k1 = 0; k1 < 100 && restart != rc; k1++) {         // message passing, for predetermined threshold = 100
-                restart = 0;  
-                //printf("yes");  
+            int ye = 0;
+            restart=0;
+            for (i = 0; i < rc; i++) {
+                    checkbit[i] = 0;
+                    if (i < (rc/2)) {
+                        for (j = 0; j < 12; j++) {
+                            checkbit[i] += output[L1[i][j] - 1];
+                        }
+                        checkbit[i] = checkbit[i] % 2;
+                    } else if (i >= (rc/2) && i < 4319) {
+                        for (j = 0; j < 5; j++) {
+                            checkbit[i] += output[L2[i-2468][j] - 1];
+                        }
+                        checkbit[i] = checkbit[i] % 2;
+                    } else {
+                        for (j = 0; j < 6; j++) {
+                            checkbit[i] += output[L3[i-4319][j] - 1];
+                        }
+                        checkbit[i] = checkbit[i] % 2;
+                    }
+                    if (checkbit[i] == 1) {
+                        //int ye;
+                        ye++;
+                        printf("yes!%d ", ye);
+                    }
+                    //if (ye == 4936) restart = 4936;
+            }
+            //if (ye == 0) continue;
+            for (k1 = 0; k1 < 100 && restart != rc && ye != 0; k1++) {         // message passing, for predetermined threshold = 100
+                restart = 0;
+                //ye =rc;  
                 for (i = 0; i < 11; i++) {                          // bottom-up
                     tempqij1[i] = 0.0;
                 }
-                //printf("1 ");
                 for (i = 0; i < 4; i++) {                          // bottom-up
                     tempqij2[i] = 0.0;
                 }
-                //printf("1 ");
                 for (i = 0; i < 5; i++) {                          // bottom-up
                     tempqij3[i] = 0.0;
                 }
                 for (i = 0; i < computlen; i++) {
                     comput[i] = 0;
                 }
-                //printf("1 ");
                 for (i = 0; i < rc; i++) {
                     if (i < (rc/2)) {
                         for (j = 0; j < 12; j++) {
@@ -399,7 +414,6 @@ int main() {
                                     valL = L1[i][m+1]-1;
                                     if (valL < 5553) {
                                         tempqij1[m] = qij1[comput[valL]][valL];
-                                        //printf("yes");
                                     }
                                     else tempqij1[m] = qij2[comput[valL]][valL - 5553];
                                 }
@@ -409,7 +423,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij1[m]);
                             }
                             uij1[i][j] = tempuij;
-                            //if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
+                            //if((s==2||s == 3)&& i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
                         }
                     } else if (i >=(rc/2) && i < 4319) {
                         for (j = 0; j < 5; j++) {
@@ -430,6 +444,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij2[m]);
                             }
                             uij2[i-2468][j] = tempuij;
+                            //if((s==2||s == 3)&& i==2468)printf("uij2[%d][%d] = %g \n",i,j,uij2[i-2468][j]);
                         }
                     } else {
                         for (j = 0; j < 6; j++) {
@@ -494,7 +509,7 @@ int main() {
                             }
                             temp1uij1[2] = Lj[j];
                             qij1[i][j] = temp1uij1[0] + temp1uij1[1] + temp1uij1[2];
-                            //if (j==0) printf("qij1[%d][%d] =%g",i,j,qij1[i][j]);
+                            //if (s==2&&j==0) printf("qij1[%d][%d] =%g",i,j,qij1[i][j]);
                         }
                     } else {
                         for (i = 0; i < 6; i++) {
@@ -598,7 +613,7 @@ int main() {
                     error1 += 1;
                 }
             }
-            for(i = 5553; i < n; i++) {
+            for(i =5553; i < n; i++) {
                 if (output[i] != codarray[i]) {
                     error2 += 1;
                 }

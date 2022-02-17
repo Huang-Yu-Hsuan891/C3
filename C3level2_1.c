@@ -409,7 +409,7 @@ int main() {
                                 tempuij = CHK(tempuij, tempqij1[m]);
                             }
                             uij1[i][j] = tempuij;
-                            //if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
+                            if(i==0)printf("uij1[%d][%d] = %g \n",i,j,uij1[i][j]);
                         }
                     } else if (i >=(rc/2) && i < 4319) {
                         for (j = 0; j < 5; j++) {
@@ -582,7 +582,19 @@ int main() {
 
                 for (i = 0; i < rc; i++) {
                     if (checkbit[i] == 0) restart += 1; // restart = 408 is success
+                    //printf("checkbit[%d]=%d ;", i, checkbit[i]);
+                    
                 }
+                int res = 0;
+                
+                for (i = rc/2; i < rc; i++) {
+                    if (checkbit[i] == 0) res+= 1; // restart = 408 is success
+                    //printf("checkbit[%d]=%d ;", i, checkbit[i]);
+                    
+                }
+                printf("restart = %d ;", restart);
+                printf("res = %d ;", res);
+                printf("k1= %d \n",k1);
                 stp = 0;
                 if (k1 == 99 && restart != rc) {
                     stp = 1;
