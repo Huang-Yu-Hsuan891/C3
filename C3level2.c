@@ -101,7 +101,7 @@ int main() {
     int stp;
     for (i = 0; i < 6; i++) bers1[i] = 0;  
     for (i = 0; i < 6; i++) bers2[i] = 0;   
-    ebn0s[0] = 1.2;
+    ebn0s[0] = 2.4;
     ebn0s[1] = 2.4;
     ebn0s[2] = 1.4;
     ebn0s[3] = 1.6;
